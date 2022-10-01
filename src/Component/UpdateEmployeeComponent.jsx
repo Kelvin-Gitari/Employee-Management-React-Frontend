@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import EmployeeService from '../Services/EmployeeService';
 
-class CreateEmployeeComponent extends Component {
+class UpdateEmployeeComponent extends Component {
     constructor(props) {
         super(props)
 
@@ -13,15 +13,10 @@ class CreateEmployeeComponent extends Component {
         }
         this.changeFirstNameHandler = this.changeFirstNameHandler.bind(this);
         this.changeLastNameHandler = this.changeLastNameHandler.bind(this);
-        this.saveOrUpdateEmployee = this.saveOrUpdateEmployee.bind(this);
+        this.updateEmployee = this.updateEmployee.bind(this);
     }
+
     componentDidMount() {
-
-        if(this.state.id === '_add') {
-            return
-
-        }else {
-
         EmployeeService.getEmployeeById(this.state.id).then ( (res) =>{
             let employee = res.data;
             this.setState({firstName: employee.firstName,
@@ -30,24 +25,18 @@ class CreateEmployeeComponent extends Component {
             });
         });
     }
-}
 
-    saveOrUpdateEmployee = (e) => {
+    updateEmployee = (e) => {
         e.preventDefault();
         let employee = {firstName: this.state.firstName, lastName: this.state.lastName, emailId: this.state.emailId};
         console.log('employees => ' + JSON.stringify(employee));
+        EmployeeService.updateEmployee(employee, this.state.id).then( res => {
+            this.props.history.push('/employees');
+        });
 
-        if(this.state.id === '_add') {
-            EmployeeService.createEmployee(employee).then( res =>{
-                this.props.history.push('/employees');
-            });
-
-        }else {
-            EmployeeService.updateEmployee(employee, this.state.id).then( res => {
-                this.props.history.push('/employees');
-            });
-
-        }
+        // EmployeeService.createEmployee(employee).then( res =>{
+        //     this.props.history.push('/employees');
+        // });
     }
 
     changeFirstNameHandler = (event) => {
@@ -66,24 +55,13 @@ class CreateEmployeeComponent extends Component {
         this.props.history.push('/employees');
     }
 
-    getTitle() {
-        if(this.state.id === '_add'){
-            return <h3 className='text-center'>Add Employee</h3>
-
-        }else {
-           return  <h3 className='text-center'>Update Employee</h3>
-
-        }
-    }
 
     render() {
         return (
             <div className='container'>
                 <div className='row'>
                     <div className='card col-md-6 offset-md-3 offset-md-3'>
-                        {
-                            this.getTitle()
-                        }
+                        <h3 className='text-center'>Update Employee</h3>
                         <div className='crad-body'>
                             <form>
                                 <div className='form-group'>
@@ -104,7 +82,7 @@ class CreateEmployeeComponent extends Component {
                                         value={this.state.emailId} onChange={this.changeEmailHandler}/>
                                 </div>
 
-                                <button className='btn btn-success' onClick={this.saveOrUpdateEmployee}>Save</button>
+                                <button className='btn btn-success' onClick={this.updateEmployee}>Save</button>
                                 <button className='btn btn-danger' onClick={this.cancel.bind(this)} style={{marginLeft: "10px"}}>Cancel</button>
 
                             </form>
@@ -114,8 +92,10 @@ class CreateEmployeeComponent extends Component {
                     </div> 
                 
             </div>
-        );
+        )
     }
-}
+    }
+   
 
-export default CreateEmployeeComponent;
+
+export default UpdateEmployeeComponent;
